@@ -2,7 +2,8 @@ import jwt from 'jsonwebtoken'
 import asyncHandler from 'express-async-handler'
 import User from '../models/userModel.js'
 
-const protect = asyncHandler(async (req, res, next) => {
+//protect capability
+const protect = asyncHandler(async (req, res, next) => { 
   let token
 
   if (
@@ -10,28 +11,30 @@ const protect = asyncHandler(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     try {
+      // Extract the token from the "Authorization" header
       token = req.headers.authorization.split(' ')[1]
-
+      // Verify the token and decode the payload
       const decoded = jwt.verify(token, process.env.JWT_SECRET)
-
+      // Attach the user object to the request, minus the password
       req.user = await User.findById(decoded.id).select('-password')
-
-      next()
+      
+      next() // Call the next middleware in the stack
     } catch (error) {
+      // If no token is found, return a 401 Unauthorized error
       console.error(error)
-      res.status(401)
+      res.status(401) 
       throw new Error('Not authorized, token failed')
     }
   }
 
-  if (!token) {
+  if (!token) { // if theres no token
     res.status(401)
-    throw new Error('Not authorized, no token')
+    throw new Error('Not authorized, no token') 
   }
 })
-
+// admin
 const admin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
+  if (req.user && req.user.isAdmin) { 
     next()
   } else {
     res.status(401)

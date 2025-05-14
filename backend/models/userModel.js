@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
-import bcrypt from 'bcryptjs'
+import mongoose from 'mongoose' // mongo DB management
+import bcrypt from 'bcryptjs' // encryption
 
-const userSchema = mongoose.Schema(
+const userSchema = mongoose.Schema( // definition for the schema of the data
   {
     name: {
       type: String,
@@ -27,19 +27,20 @@ const userSchema = mongoose.Schema(
   }
 )
 
+/*password matching*/
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password)
 }
 
+// hashing & salting the password
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next()
   }
-
   const salt = await bcrypt.genSalt(10)
-  this.password = await bcrypt.hash(this.password, salt)
+  this.password = await bcrypt.hash(this.password, salt) 
 })
 
-const User = mongoose.model('User', userSchema)
+const User = mongoose.model('User', userSchema) 
 
 export default User

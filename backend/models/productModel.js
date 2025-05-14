@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 
+//schema for reviews
 const reviewSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -15,7 +16,7 @@ const reviewSchema = mongoose.Schema(
     timestamps: true,
   }
 )
-
+//schema for products
 const productSchema = mongoose.Schema(
   {
     user: {
