@@ -1,12 +1,11 @@
 /*
 File: backend/routes/userRoutes.js
 Description: Imports controllers, sets up routes and their methods
-Versions: 0.1.0
+Versions: 0.2.0
 Author: WEB601
 */
 
-import express from 'express' // creates a router instance for managing paths
-const router = express.Router() 
+import express from 'express';
 import {
   authUser,
   registerUser,
@@ -16,19 +15,86 @@ import {
   deleteUser,
   getUserById,
   updateUser,
-} from '../controllers/userController.js' // import the controllers from the controllers folder
-import { protect, admin } from '../middleware/authMiddleware.js' // import protext & admin from the authentication middleware file
+} from '../controllers/userController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
 
-router.route('/').post(registerUser).get(protect, admin, getUsers) //.post registers a new user, .get is protected to admins for listing all users. requires admin check and authentiaction
-router.post('/login', authUser) //authenticates a user
-router
-  .route('/profile') 
-  .get(protect, getUserProfile) //retrieves profile the current authenticated user
-  .put(protect, updateUserProfile) // updates the profile of the currently authenticated user
-router
-  .route('/:id') 
-  .delete(protect, admin, deleteUser) // deletes a user
-  .get(protect, admin, getUserById) // gets a user
-  .put(protect, admin, updateUser) // updates a user's details by their id 
+const router = express.Router();
 
-export default router
+// Register a new user
+router.post('/', async (req, res, next) => {
+  try {
+    await registerUser(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Authenticate a user
+router.post('/login', async (req, res, next) => {
+  try {
+    await authUser(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all users (admin only)
+router.get('/', protect, admin, async (req, res, next) => {
+  try {
+    await getUsers(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get and update current authenticated user's profile
+router.get('/profile', protect, async (req, res, next) => {
+  try {
+    await getUserProfile(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.put('/profile', protect, async (req, res, next) => {
+  try {
+    await updateUserProfile(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// User management by ID (admin only)
+router.delete('/:id', protect, admin, async (req, res, next) => {
+  try {
+    await deleteUser(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get('/:id', protect, admin, async (req, res, next) => {
+  try {
+    await getUserById(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.put('/:id', protect, admin, async (req, res, next) => {
+  try {
+    await updateUser(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+export default router;
